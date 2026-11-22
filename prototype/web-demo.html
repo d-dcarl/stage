@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stage — Playable Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F5F2;--card:#FFFFFF;--ink:#16161A;--muted:#5E5E66;--line:#DAD8D2;--accent:#5B3DF5;--accent2:#8E7BFF;--tint:#ECE8FF;--dark:#16161A;--dark2:#232329;--darkline:#44444C}
+*{box-sizing:border-box}
+html,body{margin:0;background:#E9E7E1;font-family:Inter,system-ui,sans-serif;color:var(--ink)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--bg);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.app.dark{background:var(--dark);color:#fff}
+.screen{flex:1;display:flex;flex-direction:column;padding:20px;gap:14px;animation:fade .25s ease}
+.app.same .screen{animation:none}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;line-height:1.12;margin:0}
+.h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.dark .eyebrow{color:#C9BFFF}
+.muted{color:var(--muted);font-size:14px}
+.dark .muted{color:#B9B9C3}
+.small{font-size:12px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.grow{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.dark .card{background:var(--dark2);border-color:var(--darkline)}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:26px;border:0;background:var(--accent);color:#fff;font-weight:600;font-size:17px;padding:0 20px;width:100%}
+.dark .btn{background:var(--accent2);color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.dark .btn.ghost{background:transparent;color:#fff;border:1px solid var(--darkline)}
+.chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:#fff;font-size:14px;font-weight:500;color:var(--ink)}
+.dark .chip{background:var(--dark2);border-color:var(--darkline);color:#fff}
+.chip.on{border:2px solid var(--accent);background:var(--tint)}
+.dark .chip.on{border-color:var(--accent2);background:#2A2550}
+.spacer{flex:1}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.5px}
+.coins{display:flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:13px}
+.coin{width:14px;height:14px;border-radius:7px;background:#E8C468;border:2px solid #C9A23F}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{text-align:left;padding:12px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--ink);display:flex;flex-direction:column;gap:2px;min-height:64px}
+.opt.on{border:2px solid var(--accent);background:#fff}
+.opt b{font-size:15px}
+.opt span{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;vertical-align:middle}
+.b-open{background:#ECE8FF;color:#3F24C9}
+.b-friends{background:#E3F1E4;color:#2F6B34}
+.b-taken{background:#F4E6F7;color:#7A3F86}
+.b-wing{background:#EEEDEA;color:#46464E}
+.dark .b-open{background:#3A3270;color:#E2DCFF}
+.dark .b-friends{background:#24402A;color:#CDEBD0}
+.dark .b-taken{background:#44284A;color:#F1D8F6}
+.dark .b-wing{background:#33333A;color:#D9D9DE}
+/* avatars */
+.av{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#16161A;flex:none;transition:transform .3s}
+.f-neon{box-shadow:0 0 0 3px #8E7BFF,0 0 14px 3px rgba(142,123,255,.8)}
+.f-sunset{box-shadow:0 0 0 3px #F2A65A,0 0 0 6px #E85D75}
+.f-gold{box-shadow:0 0 0 3px #E8C468,0 0 16px 4px rgba(232,196,104,.8)}
+.f-twin{box-shadow:0 0 0 3px #FF7AB6,0 0 0 6px #fff,0 0 18px 6px rgba(255,122,182,.7)}
+.av.wing{transform:scale(.68);filter:grayscale(1);opacity:.5}
+.av.spot{outline:2px solid #fff;outline-offset:6px}
+.av.spot::after{content:'';position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%);pointer-events:none}
+.seat{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;text-align:center;position:relative}
+.seat .nm{font-weight:600}
+.seats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.float{position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:#fff;color:#16161A;font-size:11px;font-weight:700;padding:3px 7px;border-radius:10px;white-space:nowrap;animation:up 1.6s ease forwards;pointer-events:none;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+@keyframes up{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-34px)}}
+.enter-confetti{animation:pop .9s ease}
+@keyframes pop{0%{transform:scale(.2) rotate(-20deg)}60%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1)}}
+.enter-sweep{animation:sweep 1s ease}
+@keyframes sweep{0%{box-shadow:0 0 0 0 rgba(255,255,255,.9),0 0 60px 30px rgba(255,255,255,.7)}100%{}}
+.timer{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#C9BFFF}
+.bar{height:6px;border-radius:3px;background:#33333A;overflow:hidden}
+.bar>div{height:100%;background:var(--accent2);transition:width 1s linear}
+.prompt{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;line-height:1.15;text-align:center;margin:6px 0}
+input[type=range]{width:100%;accent-color:var(--accent2);height:40px}
+.react{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.toast{position:absolute;left:12px;right:12px;top:12px;z-index:50;background:#232329;color:#fff;border:1px solid #8E7BFF;border-radius:14px;padding:10px 12px;font-size:14px;animation:tin .3s ease}
+.toast b{color:#C9BFFF}
+@keyframes tin{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+.spectrum{position:relative;height:54px;margin:8px 6px}
+.spectrum .line{position:absolute;left:0;right:0;top:26px;height:2px;background:#44444C}
+.spectrum .dot{position:absolute;top:8px;transform:translateX(-50%);transition:left .8s ease}
+textarea,input[type=text]{width:100%;border-radius:12px;border:1px solid var(--darkline);background:#1C1C22;color:#fff;font:400 16px Inter,sans-serif;padding:12px}
+.light textarea,.light input[type=text]{background:#fff;color:var(--ink);border-color:#B9B6AE}
+.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.who button{background:var(--dark2);border:1px solid var(--darkline);color:#fff;border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.who button.right{border:2px solid #7BC47F;background:#24402A}
+.who button.wrong{border:2px solid #E85D75;background:#4A2028}
+.quote{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;text-align:center;padding:18px;border-radius:16px;background:#221E40;border:1px solid #3A3270}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.slot{min-height:120px;border-radius:16px;border:2px dashed var(--darkline);background:transparent;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px}
+.slot.filled{border-style:solid;border-color:var(--accent2);background:#221E40}
+.slot .lbl{font-weight:700;font-size:14px}
+.pool{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.pool button{background:transparent;border:2px solid transparent;border-radius:16px;padding:6px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pool button.sel{border-color:var(--accent2);background:#221E40}
+.pool button.used{opacity:.3}
+.pcard{border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.pcard .ph{height:110px;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}
+.pcard .bd{padding:8px 10px 10px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pickrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.pickrow.on{border:2px solid var(--accent)}
+.iconbtn{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.iconbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.iconbtn:disabled{opacity:.25;cursor:default}
+.check{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:transparent;font-weight:700}
+.check.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.modal{position:absolute;inset:0;background:rgba(10,10,14,.55);z-index:40;display:flex;align-items:flex-end}
+.sheet{background:var(--bg);color:var(--ink);width:100%;max-height:92%;overflow:auto;border-radius:24px 24px 0 0;padding:20px;display:flex;flex-direction:column;gap:12px;animation:tin .25s ease}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;color:var(--ink)}
+.item.eq{border:2px solid var(--accent)}
+.item .pr{font-size:12px;font-weight:600;color:var(--muted)}
+.stars{position:relative;height:200px;border-radius:14px;background:#F0EEE9;overflow:hidden}
+.star{position:absolute;width:40px;height:40px;border:0;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;animation:fall 1.4s linear forwards}
+.star::before{content:'';width:18px;height:18px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent2)}
+@keyframes fall{from{transform:translateY(-10px)}to{transform:translateY(60px);opacity:.2}}
+.qseats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;justify-items:center}
+.empty{width:64px;height:64px;border-radius:50%;border:2px dashed #B9B6AE}
+.demo-note{font-size:11px;color:var(--muted);text-align:center}
+.dark .demo-note{color:#9E9EA8}
+.match{background:#16161A;color:#fff;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+(function(){
+'use strict';
+var BOTS={
+  emma:{id:'emma',name:'Emma',age:24,status:'open',color:'#F2A65A',frame:'sunset',lean:0.8,bio:['Weekend: Timp hike','Can\'t stop: sourdough starter']},
+  tyler:{id:'tyler',name:'Tyler',age:26,status:'open',color:'#5AA9E6',frame:'neon',lean:0.35,bio:['Can\'t stop: pickleball','Best date: drive-in movie']},
+  sam:{id:'sam',name:'Sam',age:27,status:'friends',color:'#7BC47F',frame:'none',lean:0.55,bio:['Ask me about: board games','Hot take: cold pizza wins']},
+  jake:{id:'jake',name:'Jake',age:25,status:'taken',color:'#C792EA',frame:'gold',lean:0.15,bio:['Here with: my wife next week','Known for: bold takes']},
+  lily:{id:'lily',name:'Lily',age:23,status:'open',color:'#FF8FA3',frame:'neon',lean:0.65,bio:['Weekend: Bear Lake','Can\'t stop: thrift stores']},
+  kenzie:{id:'kenzie',name:'Kenzie',age:23,status:'wing',color:'#E8C468',frame:'none',lean:0.6,bio:['Role: professional hype','Weekend: Sundance trails']}
+};
+var TAKES=['Fry sauce belongs on everything.','Pineapple belongs on pizza.','A Costco hot dog is a great first date.','Board games beat a movie for a first date.','You should text back within 5 minutes.','Skiing beats snowboarding.'];
+var WHO=[
+ {q:'Worst possible first-date activity?',a:{emma:'Watching them do their taxes',tyler:'A 6 a.m. hike with no snacks',sam:'Their family reunion',jake:'Building IKEA furniture together',lily:'A silent retreat',kenzie:'Watching them play video games for 3 hours'}},
+ {q:'The most Utah date imaginable?',a:{emma:'Swig run, then Temple Square lights',tyler:'Cougar game, then Cafe Rio',sam:'A fry sauce taste test tour',jake:'Hiking the Y at sunrise',lily:'Sundance dinner, very fancy',kenzie:'Board games and home by 11'}},
+ {q:'Your hidden talent nobody believes?',a:{emma:'I can name every Pixar movie in order',tyler:'Perfect parallel parking, first try',sam:'I can solve a Rubik\'s cube in a minute',jake:'I make a mean Dutch oven cobbler',lily:'I can whistle with my hands',kenzie:'I can tell if a date is going well from across the room'}}
+];
+var EMOTE_PACKS={basic:['Ha','Same','No way'],utah:['Oh my heck','Fry sauce!','Sweet!'],hype:['Iconic','Main character','Stop it']};
+var SHOP=[
+ {id:'none',type:'frame',name:'Default',price:0},
+ {id:'neon',type:'frame',name:'Neon Ring',price:150},
+ {id:'sunset',type:'frame',name:'Canyon Sunset',price:200},
+ {id:'gold',type:'frame',name:'Gold Glow',price:300},
+ {id:'enter-none',type:'entrance',name:'No entrance',price:0},
+ {id:'enter-confetti',type:'entrance',name:'Pop-in',price:120},
+ {id:'enter-sweep',type:'entrance',name:'Spotlight sweep',price:180},
+ {id:'basic',type:'emotes',name:'Basic emotes',price:0},
+ {id:'utah',type:'emotes',name:'Utah emotes',price:100},
+ {id:'hype',type:'emotes',name:'Hype emotes',price:100}
+];
+var S={
+  screen:'lobby', name:'You', status:'open', party:true, coins:500,
+  owned:{none:1,'enter-none':1,basic:1}, frame:'none', entrance:'enter-none', pack:'basic', twin:false,
+  modal:null
+};
+function resetSession(){
+  S.round={take:pick(TAKES),takeVal:50,botTakes:{},who:pick(WHO),myAnswer:'',guessQ:[],guessIdx:0,guessPick:null,guessScore:0,
+    slots:{road:null,brunch:null,rain:null},selected:null,trip:{},picks:{},hearts:{},group:true,entered:false,queueStar:0,laughs:0};
+}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+/* ----- people & roles ----- */
+function me(){return{id:'me',name:S.name||'You',age:'',status:S.status,color:'#ECE8FF',frame:S.twin?'twin':S.frame,me:true}}
+function partyMate(){
+  if(!S.party)return null;
+  var k=Object.assign({},BOTS.kenzie);
+  k.status=S.status==='wing'?'open':'wing';
+  if(S.twin)k.frame='twin';
+  return k;
+}
+function room(){
+  var r=[me()];var k=partyMate();if(k)r.push(k);
+  r=r.concat([BOTS.emma,BOTS.tyler,BOTS.sam,BOTS.jake]);
+  if(!k)r.push(BOTS.lily);
+  return r;
+}
+function others(){var k=partyMate();return room().filter(function(p){return !p.me&&(!k||p.id!==k.id)})}
+function byId(id){return room().filter(function(p){return p.id===id})[0]}
+function wingPerson(){var k=partyMate();if(!k)return null;return S.status==='wing'?'me':'kenzie'}
+function spotPerson(){var k=partyMate();if(!k)return null;return S.status==='wing'?'kenzie':'me'}
+function canDate(p){return S.status==='open'&&p.status==='open'}
+function badge(st){var m={open:'Open',friends:'Friends',taken:'Taken',wing:'Wing'};return '<span class="badge b-'+st+'">'+m[st]+'</span>'}
+function initials(p){return p.me?'YOU':p.name.charAt(0)}
+function avatar(p,size,extra){
+  size=size||44;var cls='av';
+  if(p.frame&&p.frame!=='none')cls+=' f-'+p.frame;
+  if(wingPerson()===p.id)cls+=' wing';
+  if(spotPerson()===p.id)cls+=' spot';
+  if(extra)cls+=' '+extra;
+  var fs=p.me?Math.round(size*0.26):Math.round(size*0.4);
+  return '<div class="'+cls+'" data-pid="'+p.id+'" style="width:'+size+'px;height:'+size+'px;background:'+p.color+';font-size:'+fs+'px">'+esc(initials(p))+'</div>';
+}
+function seatRow(){
+  var h='<div class="seats">';
+  room().forEach(function(p){
+    var ent=(p.me&&!S.round.entered&&S.entrance!=='enter-none')?S.entrance:'';
+    h+='<div class="seat">'+avatar(p,44,ent)+'<span class="nm">'+esc(p.me?'You':p.name)+'</span>'+badge(p.status)+'</div>';
+  });
+  S.round.entered=true;
+  return h+'</div>';
+}
+
+/* ----- timers & effects ----- */
+var timers=[];
+function later(fn,ms){var t=setTimeout(fn,ms);timers.push(t);return t}
+function every(fn,ms){var t=setInterval(fn,ms);timers.push(t);return t}
+function clearTimers(){timers.forEach(function(t){clearTimeout(t);clearInterval(t)});timers=[]}
+function floatEmote(pid,text){
+  var el=document.querySelector('.seat [data-pid="'+pid+'"]');if(!el)return;
+  var s=document.createElement('span');s.className='float';s.textContent=text;el.parentNode.appendChild(s);
+  setTimeout(function(){s.remove()},1700);
+}
+function botChatter(){
+  every(function(){var bots=room().filter(function(p){return !p.me});var b=pick(bots);floatEmote(b.id,pick(['Ha','Same','No way','Oh my heck','Iconic','Wait what']))},1800);
+}
+function toast(html,ms){
+  var t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.innerHTML=html;document.getElementById('app').appendChild(t);
+  setTimeout(function(){t.remove()},ms||3800);
+}
+function hype(text){
+  var w=wingPerson();if(!w)return;
+  if(w==='kenzie')toast('<b>Kenzie, privately:</b> '+text);
+}
+function countdown(sec,onTick,onEnd){
+  var left=sec;onTick(left);
+  every(function(){left--;onTick(left);if(left<=0){clearTimers();onEnd()}},1000);
+}
+
+/* ----- navigation ----- */
+function go(screen){clearTimers();S.screen=screen;render()}
+var lastScreen=null;
+function render(){
+  var app=document.getElementById('app');
+  var dark=['hottake','htresults','whosaid','whoguess','roadtrip','rtresults'].indexOf(S.screen)>=0;
+  app.className='app'+(dark?' dark':'')+(S.screen===lastScreen?' same':'');
+  lastScreen=S.screen;
+  app.innerHTML=SCREENS[S.screen]()+(S.modal?MODALS[S.modal]():'');
+  if(AFTER[S.screen])AFTER[S.screen]();
+}
+
+/* ----- screens ----- */
+var SCREENS={},AFTER={},MODALS={};
+
+SCREENS.lobby=function(){
+  var st=[['open','Open to dating','Dating and friend picks'],['friends','Here to play','Friends and games only'],['taken','Taken','Solo or with your partner'],['wing','Wingman','Hype up a friend']];
+  var h='<div class="screen">';
+  h+='<div class="top"><div class="logo">Stage</div><div class="row"><button class="coins" data-a="locker" aria-label="Open the locker"><span class="coin"></span>'+S.coins+'</button>'+avatar(me(),40)+'</div></div>';
+  h+='<div class="card" style="background:#16161A;color:#fff;border:0"><div class="eyebrow" style="color:#C9BFFF">Next hot hour</div><div class="h2">Sunday · 7–10 pm</div><div class="small" style="color:#D9D9DE;margin-top:2px">Demo: rooms fill with simulated players.</div></div>';
+  h+='<label class="small" for="nm" style="font-weight:600;color:var(--muted)">Your first name</label><input id="nm" type="text" maxlength="14" value="'+esc(S.name==='You'?'':S.name)+'" placeholder="First name" style="background:#fff;color:#16161A;border-color:#B9B6AE">';
+  h+='<div class="eyebrow">Tonight I\'m…</div><div class="status-grid">';
+  st.forEach(function(s){h+='<button class="opt'+(S.status===s[0]?' on':'')+'" data-a="status" data-v="'+s[0]+'" aria-pressed="'+(S.status===s[0])+'"><b>'+s[1]+'</b><span>'+s[2]+'</span></button>'});
+  h+='</div>';
+  var k=partyMate();
+  var partyText=S.status==='wing'?'You\'re Kenzie\'s wingman tonight':(S.party?'Kenzie is your wingwoman tonight':'Playing solo');
+  h+='<div class="card row"><div class="row" style="gap:0">'+avatar(me(),36)+(k?'<div style="margin-left:-6px">'+avatar(Object.assign({},k,{frame:k.frame}),36)+'</div>':'')+'</div><div class="grow"><b style="font-size:14px">'+(k?'Party: you + Kenzie':'No party')+'</b><div class="small muted">'+partyText+'</div></div>'+(S.status==='wing'?'':'<button class="chip'+(S.party?' on':'')+'" data-a="party" aria-pressed="'+S.party+'">'+(S.party?'In party':'Bring Kenzie')+'</button>')+'</div>';
+  h+='<div class="spacer"></div><button class="btn" data-a="play">Play</button><div class="demo-note">Prototype: everyone else in the room is simulated.</div></div>';
+  return h;
+};
+AFTER.lobby=function(){var i=document.getElementById('nm');i.addEventListener('input',function(){S.name=i.value.trim()||'You'})};
+
+SCREENS.queue=function(){
+  var h='<div class="screen"><div class="top"><button class="chip" data-a="cancel">Cancel</button><span class="small muted">'+badge(S.status)+' · 21–35 · Utah County</span></div>';
+  h+='<div style="text-align:center"><div class="h1">Finding your room</div><div class="muted" id="qcount">Joining…</div></div><div class="qseats" id="qseats"></div>';
+  h+='<div class="card"><div class="row between"><b>Warm-up: Star Catch</b><span class="small muted">Score: <b id="sc">0</b></span></div><div class="small muted" style="margin:4px 0 8px">Tap the stars before they fall.</div><div class="stars" id="stars"></div></div>';
+  h+='<div class="spacer"></div><div class="demo-note">'+(S.party?'Your party stays together. ':'')+'Avatars and first names only. No photos yet.</div></div>';
+  return h;
+};
+AFTER.queue=function(){
+  var r=room(),n=0;var seats=document.getElementById('qseats');
+  function draw(){seats.innerHTML='';r.forEach(function(p,i){seats.innerHTML+=i<n?avatar(p,64):'<div class="empty"></div>'});document.getElementById('qcount').textContent=n+' of '+r.length+' joined'}
+  n=S.party?2:1;draw();
+  every(function(){if(n<r.length){n++;draw()}else{document.getElementById('qcount').textContent='Room found!';later(function(){go('hottake')},900)}},1100);
+  var box=document.getElementById('stars');
+  every(function(){
+    var b=document.createElement('button');b.className='star';b.setAttribute('aria-label','Star');
+    b.style.left=(10+Math.random()*(box.clientWidth-60))+'px';b.style.top=(10+Math.random()*120)+'px';
+    b.onclick=function(){S.round.queueStar++;document.getElementById('sc').textContent=S.round.queueStar;b.remove()};
+    box.appendChild(b);setTimeout(function(){b.remove()},1400);
+  },550);
+};
+
+function roundHead(n,name,sec){
+  return '<div class="top"><span class="small" style="color:#C9C9D1">Round '+n+' of 3 · '+name+'</span><span class="timer" id="tm">0:'+(sec<10?'0':'')+sec+'</span></div><div class="bar"><div id="tb" style="width:100%"></div></div>';
+}
+function tick(sec){return function(l){var t=document.getElementById('tm'),b=document.getElementById('tb');if(t)t.textContent='0:'+(l<10?'0':'')+Math.max(l,0);if(b)b.style.width=Math.max(0,l/sec*100)+'%'}}
+function reactBar(){
+  var h='<div class="react">';EMOTE_PACKS[S.pack].forEach(function(e){h+='<button class="chip" data-a="emote" data-v="'+esc(e)+'">'+esc(e)+'</button>'});
+  return h+'</div>';
+}
+
+SCREENS.hottake=function(){
+  var h='<div class="screen">'+roundHead(1,'Hot Take',20)+seatRow();
+  h+='<div class="eyebrow" style="text-align:center;margin-top:10px">Hot Take</div><div class="prompt">'+esc(S.round.take)+'</div>';
+  h+='<label for="take" class="small muted">Slide to where you stand</label><input id="take" type="range" min="0" max="100" value="'+S.round.takeVal+'"><div class="row between small" style="font-weight:600"><span>Never</span><span>Obviously</span></div>';
+  h+=reactBar()+'<div class="spacer"></div><button class="btn" data-a="lockTake">Lock in</button></div>';
+  return h;
+};
+AFTER.hottake=function(){
+  var i=document.getElementById('take');i.addEventListener('input',function(){S.round.takeVal=+i.value});
+  room().forEach(function(p){if(!p.me){S.round.botTakes[p.id]=Math.max(2,Math.min(98,Math.round(p.lean*100+(Math.random()*50-25))))}});
+  botChatter();
+  later(function(){hype('Emma is grinning at this prompt. Commit to your answer.')},5000);
+  countdown(20,tick(20),function(){go('htresults')});
+};
+
+SCREENS.htresults=function(){
+  var h='<div class="screen">'+'<div class="eyebrow">Round 1 results</div><div class="h2">'+esc(S.round.take)+'</div>';
+  h+='<div class="card"><div class="spectrum"><div class="line"></div>';
+  room().forEach(function(p){var v=p.me?S.round.takeVal:S.round.botTakes[p.id];h+='<div class="dot" style="left:'+v+'%">'+avatar(p,30)+'</div>'});
+  h+='</div><div class="row between small" style="font-weight:600"><span>Never</span><span>Obviously</span></div></div>';
+  var near=closest();
+  h+='<div class="card"><b>Closest to you: '+esc(near.name)+'</b><div class="small muted">You landed '+Math.abs(S.round.takeVal-S.round.botTakes[near.id])+' points apart.</div></div>';
+  h+='<div class="spacer"></div><button class="btn" data-a="toWho">Next: Who Said It</button></div>';
+  return h;
+};
+function closest(){var best=null,d=999;others().forEach(function(p){var x=Math.abs(S.round.takeVal-S.round.botTakes[p.id]);if(x<d){d=x;best=p}});return best}
+AFTER.htresults=function(){if(closest().id==='emma'||closest().status==='open')later(function(){hype('You and '+esc(closest().name)+' basically agree. Noted.')},900)};
+
+SCREENS.whosaid=function(){
+  var h='<div class="screen">'+roundHead(2,'Who Said It',40)+seatRow();
+  h+='<div class="eyebrow" style="text-align:center;margin-top:10px">Answer anonymously</div><div class="prompt" style="font-size:26px">'+esc(S.round.who.q)+'</div>';
+  h+='<label for="ans" class="sr">Your answer</label><textarea id="ans" rows="3" maxlength="80" placeholder="Make the room laugh…">'+esc(S.round.myAnswer)+'</textarea>';
+  h+='<div class="small" style="color:#9E9EA8">Everyone answers. Then you guess who wrote what.</div><div class="spacer"></div><button class="btn" data-a="lockWho">Submit answer</button></div>';
+  return h;
+};
+AFTER.whosaid=function(){
+  var t=document.getElementById('ans');t.addEventListener('input',function(){S.round.myAnswer=t.value});
+  botChatter();countdown(40,tick(40),function(){startGuess()});
+};
+function startGuess(){
+  var pool=room().filter(function(p){return !p.me});
+  S.round.guessQ=shuffle(pool).slice(0,3).map(function(p){return p.id});
+  S.round.guessIdx=0;S.round.guessPick=null;go('whoguess');
+}
+SCREENS.whoguess=function(){
+  var id=S.round.guessQ[S.round.guessIdx],ans=S.round.who.a[id];
+  var h='<div class="screen"><div class="top"><span class="small" style="color:#C9C9D1">Round 2 · Guess '+(S.round.guessIdx+1)+' of 3</span><span class="timer">'+S.round.guessScore+' pts</span></div>';
+  h+='<div class="eyebrow" style="text-align:center">'+esc(S.round.who.q)+'</div><div class="quote">"'+esc(ans)+'"</div><div class="muted" style="text-align:center">Who said it?</div><div class="who">';
+  room().filter(function(p){return !p.me}).forEach(function(p){
+    var c='';if(S.round.guessPick){if(p.id===id)c='right';else if(p.id===S.round.guessPick)c='wrong'}
+    h+='<button class="'+c+'" data-a="guess" data-v="'+p.id+'"'+(S.round.guessPick?' disabled':'')+'>'+avatar(p,40)+'<span class="small">'+esc(p.name)+'</span></button>';
+  });
+  h+='</div>';
+  if(S.round.guessPick){h+='<div class="card" style="text-align:center"><b>'+(S.round.guessPick===id?'Nailed it.':'It was '+esc(byId(id).name)+'.')+'</b></div>'}
+  h+='<div class="spacer"></div>';
+  if(S.round.guessPick)h+='<button class="btn" data-a="nextGuess">'+(S.round.guessIdx<2?'Next answer':'See your laughs')+'</button>';
+  return h+'</div>';
+};
+AFTER.whoguess=function(){};
+
+SCREENS.unlock=function(){
+  var mine=S.round.myAnswer.trim()?esc(S.round.myAnswer.trim()):'(you left it blank)';
+  var h='<div class="screen light"><div class="eyebrow">After round 2 of 3</div>';
+  h+='<div class="card"><b>Your answer: "'+mine+'"</b><div class="small muted">'+S.round.laughs+' people tapped Ha. You guessed '+S.round.guessScore+' of 3 authors.</div></div>';
+  h+='<div><div class="h2">Photos unlocked</div><div class="muted">You\'ve seen how they play. Now see who they are.</div></div><div class="pgrid">';
+  room().filter(function(p){return !p.me}).forEach(function(p){
+    h+='<div class="pcard"><div class="ph" style="background:'+p.color+'33"><svg aria-hidden="true" width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="20" fill="'+p.color+'"/><path d="M8 96c4-24 20-36 37-36s33 12 37 36z" fill="'+p.color+'"/></svg>'+(wingPerson()===p.id?'':'')+'</div>';
+    h+='<div class="bd"><b style="font-size:14px">'+esc(p.name)+', '+p.age+'</b> '+badge(p.status)+'<div class="small muted">'+esc(p.bio[0])+'</div></div></div>';
+  });
+  h+='</div><div class="demo-note">Prototype uses placeholder silhouettes instead of real photos.</div><button class="btn" data-a="toTrip">Round 3: Road Trip, Brunch, Rain Check</button></div>';
+  return h;
+};
+
+SCREENS.roadtrip=function(){
+  var sl=S.round.slots,h='<div class="screen">'+roundHead(3,'Road Trip, Brunch, Rain Check',45);
+  h+='<div class="muted" style="text-align:center;margin-top:8px">Tap a person, then a slot. Only totals are shared, never who chose whom.</div><div class="slots">';
+  [['road','Road trip'],['brunch','Brunch'],['rain','Rain check']].forEach(function(s){
+    var p=sl[s[0]]?byId(sl[s[0]]):null;
+    h+='<button class="slot'+(p?' filled':'')+'" data-a="slot" data-v="'+s[0]+'"><span class="lbl">'+s[1]+'</span>'+(p?avatar(p,44)+'<span class="small">'+esc(p.name)+'</span>':'<span class="small" style="color:#9E9EA8">Empty</span>')+'</button>';
+  });
+  h+='</div><div class="pool">';
+  var used=[sl.road,sl.brunch,sl.rain];
+  others().forEach(function(p){h+='<button class="'+(S.round.selected===p.id?'sel':'')+(used.indexOf(p.id)>=0?' used':'')+'" data-a="pickPerson" data-v="'+p.id+'">'+avatar(p,48)+'<span class="small">'+esc(p.name)+'</span></button>'});
+  h+='</div><div class="spacer"></div>'+reactBar()+'<button class="btn" data-a="lockTrip"'+(sl.road&&sl.brunch&&sl.rain?'':' disabled')+'>Lock in</button></div>';
+  return h;
+};
+AFTER.roadtrip=function(){countdown(45,tick(45),function(){autoFillTrip();go('rtresults')})};
+function autoFillTrip(){var sl=S.round.slots,free=others().map(function(p){return p.id}).filter(function(id){return [sl.road,sl.brunch,sl.rain].indexOf(id)<0});['road','brunch','rain'].forEach(function(k){if(!sl[k])sl[k]=free.shift()||null})}
+function tallyTrip(){
+  // simulated choices of the rest of the room, including you as a candidate
+  var t={};room().forEach(function(p){t[p.id]={road:0,brunch:0,rain:0}});
+  var sl=S.round.slots;['road','brunch','rain'].forEach(function(k){if(sl[k])t[sl[k]][k]++});
+  room().filter(function(p){return !p.me}).forEach(function(b){
+    var cands=shuffle(room().filter(function(p){return p.id!==b.id&&p.status!=='wing'}));
+    cands.sort(function(a,c){return affinity(b,c)<affinity(b,a)?-1:1});
+    t[cands[0].id].road++;t[cands[1].id].brunch++;t[cands[cands.length-1].id].rain++;
+  });
+  return t;
+}
+function affinity(a,b){
+  // how much a likes b (simulated)
+  var av=a.me?S.round.takeVal:S.round.botTakes[a.id],bv=b.me?S.round.takeVal:S.round.botTakes[b.id];
+  var s=1-Math.abs(av-bv)/100;
+  if(b.me&&S.round.myAnswer.trim().length>8)s+=0.15;
+  if(b.me&&S.frame!=='none')s+=0.05;
+  if(a.id==='emma'&&b.me)s+=0.2;
+  return s+Math.random()*0.25;
+}
+SCREENS.rtresults=function(){
+  var t=S.round.trip=tallyTrip(),mine=t.me;
+  var h='<div class="screen"><div class="eyebrow">Round 3 results</div><div class="h2">The room has spoken</div>';
+  h+='<div class="card"><b>You got '+mine.road+' road trip'+(mine.road===1?'':'s')+' and '+mine.brunch+' brunch'+(mine.brunch===1?'':'es')+'.</b><div class="small" style="color:#9E9EA8">Rain checks are never shown. Nobody sees who picked whom.</div></div>';
+  h+='<div class="card"><div class="eyebrow" style="margin-bottom:8px">Most road trips</div>';
+  others().slice().sort(function(a,b){return t[b.id].road-t[a.id].road}).slice(0,3).forEach(function(p){h+='<div class="row" style="margin:6px 0">'+avatar(p,32)+'<span class="grow">'+esc(p.name)+'</span><b>'+t[p.id].road+'</b></div>'});
+  h+='</div><div class="spacer"></div><button class="btn" data-a="toPicks">Make your picks</button></div>';
+  return h;
+};
+AFTER.rtresults=function(){later(function(){hype('Two road trips for you. Not bad at all.')},800)};
+
+SCREENS.picks=function(){
+  var cnt=Object.keys(S.round.picks).filter(function(k){return S.round.picks[k]}).length;
+  var h='<div class="screen light"><div class="row between"><span class="small muted">Game over · picks are private</span><span class="small muted">'+cnt+' of 3</span></div>';
+  h+='<div class="h1" style="font-size:26px">Who would you play with again?</div><div class="muted">'+(S.status==='open'?'Tap the heart to also mark dating interest (Open players only). ':'Your status means these are friend picks. ')+'Only mutual picks are revealed.</div>';
+  others().forEach(function(p){
+    var on=!!S.round.picks[p.id],ht=!!S.round.hearts[p.id],can=canDate(p);
+    h+='<div class="pickrow'+(on?' on':'')+'">'+avatar(p,44)+'<div class="grow"><b>'+esc(p.name)+', '+p.age+'</b> '+badge(p.status)+'<div class="small muted">'+esc(p.bio[0])+'</div></div>';
+    h+='<button class="iconbtn'+(ht?' on':'')+'" data-a="heart" data-v="'+p.id+'"'+(can?'':' disabled')+' aria-pressed="'+ht+'" aria-label="Dating interest in '+esc(p.name)+'"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="'+(ht?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button>';
+    h+='<button class="check'+(on?' on':'')+'" data-a="pk" data-v="'+p.id+'" aria-pressed="'+on+'" aria-label="Play again with '+esc(p.name)+'">✓</button></div>';
+  });
+  if(partyMate())h+='<div class="small muted">Kenzie is in your party, so she isn\'t listed.</div>';
+  h+='<button class="pickrow'+(S.round.group?' on':'')+'" data-a="group" style="text-align:left;background:var(--tint)"><b class="grow">The whole group was great. Up for a group hangout.</b><span class="check'+(S.round.group?' on':'')+'">✓</span></button>';
+  h+='<div class="spacer"></div><button class="btn" data-a="send">Send picks</button></div>';
+  return h;
+};
+
+SCREENS.reveal=function(){
+  var res=S.round.result;
+  var h='<div class="screen light"><div class="eyebrow">Results are in</div>';
+  res.matches.forEach(function(p){
+    h+='<div class="match"><div class="eyebrow" style="color:#C9BFFF">It\'s a match · mutual dating interest</div><div class="row">'+avatar(me(),56)+avatar(p,56)+'<div><div class="h2">'+esc(p.name)+'</div><div class="small" style="color:#C9C9D1">You both hearted each other</div></div></div>';
+    h+='<div class="small" style="color:#D9D9DE">Opener: '+opener(p)+'</div><button class="btn" style="background:#8E7BFF;color:#16161A" data-a="noop">Say hi to '+esc(p.name)+'</button></div>';
+  });
+  res.friends.forEach(function(p){h+='<div class="card row">'+avatar(p,44)+'<div class="grow"><div class="eyebrow">New friend</div><b>'+esc(p.name)+' picked you too</b></div><button class="chip" data-a="noop">Chat</button></div>'});
+  if(res.group.length){
+    h+='<div class="card"><div class="eyebrow" style="color:var(--accent)">Group formed</div><div class="row" style="gap:0;margin:8px 0">'+avatar(me(),40);
+    res.group.forEach(function(p){h+='<div style="margin-left:-8px">'+avatar(p,40)+'</div>'});
+    h+='</div><b>You'+res.group.map(function(p){return ', '+esc(p.name)}).join('')+' all want to hang out again</b><div class="small muted">Group chat with date ideas near Provo/Orem.</div></div>';
+  }
+  if(!res.matches.length&&!res.friends.length&&!res.group.length)h+='<div class="card"><b>No mutual picks this time.</b><div class="small muted">That happens. Nobody sees who didn\'t pick them. Rooms reshuffle every game.</div></div>';
+  else h+='<div class="demo-note">Nobody sees who didn\'t pick them.</div>';
+  h+='<div class="card row"><span class="coin"></span><span class="grow small"><b>+50 coins</b> for finishing a game</span></div>';
+  h+='<div class="spacer"></div><button class="btn" data-a="again">Play again</button><button class="btn ghost" data-a="locker">Open the locker</button></div>';
+  return h;
+};
+function opener(p){
+  var d=Math.abs(S.round.takeVal-S.round.botTakes[p.id]);
+  if(d<20)return 'you both landed in the same spot on "'+esc(S.round.take)+'"';
+  return 'you disagreed on "'+esc(S.round.take)+'". Settle it.';
+}
+function computeResult(){
+  var res={matches:[],friends:[],group:[]};
+  others().forEach(function(p){
+    var a=affinity(p,me());
+    var botPicks=a>0.62;var botHeart=canDate(p)&&a>0.78;
+    var iPick=!!S.round.picks[p.id],iHeart=!!S.round.hearts[p.id];
+    if(iHeart&&botHeart&&iPick)res.matches.push(p);
+    else if(iPick&&botPicks)res.friends.push(p);
+  });
+  if(S.round.group){var g=others().filter(function(p){return Math.random()<0.55});var k=partyMate();if(g.length>=2){if(k)g.unshift(k);res.group=g}}
+  S.round.result=res;S.coins+=50;
+}
+
+/* ----- locker modal ----- */
+MODALS.locker=function(){
+  var h='<div class="modal" data-a="closeModal"><div class="sheet" data-stop="1"><div class="row between"><div class="h2">Locker</div><div class="coins"><span class="coin"></span>'+S.coins+'</div></div>';
+  h+='<div class="row">'+avatar(me(),64,'')+'<div class="small muted">Cosmetics show up in every room. They change how you look, never who you get matched with.</div></div>';
+  ['frame','entrance','emotes'].forEach(function(type){
+    var title={frame:'Avatar frames',entrance:'Entrances',emotes:'Emote packs'}[type];
+    h+='<div class="eyebrow">'+title+'</div><div class="items">';
+    SHOP.filter(function(i){return i.type===type}).forEach(function(i){
+      var own=!!S.owned[i.id];var eq=(type==='frame'&&S.frame===i.id&&!S.twin)||(type==='entrance'&&S.entrance===i.id)||(type==='emotes'&&S.pack===i.id);
+      var prev=type==='frame'?avatar({id:'prev',name:'P',color:'#ECE8FF',frame:i.id,status:'open'},40):(type==='emotes'?'<span class="small">'+EMOTE_PACKS[i.id].join(' · ')+'</span>':'<span class="small muted">Plays when you join</span>');
+      h+='<button class="item'+(eq?' eq':'')+'" data-a="shop" data-v="'+i.id+'">'+prev+'<b style="font-size:13px">'+i.name+'</b><span class="pr">'+(eq?'Equipped':own?'Owned · tap to equip':i.price+' coins')+'</span></button>';
+    });
+    h+='</div>';
+  });
+  h+='<div class="eyebrow">Duo set</div><div class="card row" style="background:var(--tint);border:0">'+avatar({id:'tw',name:'T',color:'#FFD6E8',frame:'twin',status:'open'},44)+'<div class="grow"><b>Twin Flames · with Kenzie</b><div class="small muted">Matching frames for you and your party. 300 coins, or split it: 150 each.</div></div></div>';
+  if(S.twin)h+='<div class="small" style="font-weight:600;color:var(--accent)">Twin Flames unlocked and equipped for both of you.</div>';
+  else if(S.modalSplit==='waiting')h+='<div class="small muted">You paid your half. Waiting on Kenzie…</div>';
+  else h+='<div class="row"><button class="btn" data-a="split" style="min-height:44px;font-size:15px">Split with Kenzie (150)</button><button class="btn ghost" data-a="gift" style="min-height:44px;font-size:15px">Gift both (300)</button></div>';
+  h+='<div class="demo-note">Demo coins only. No real purchases.</div><button class="btn ghost" data-a="closeModal">Done</button></div></div>';
+  return h;
+};
+function buy(id){
+  var i=SHOP.filter(function(x){return x.id===id})[0];
+  if(!S.owned[id]){if(S.coins<i.price){toast('Not enough coins. Finish games to earn more.');return}S.coins-=i.price;S.owned[id]=1}
+  if(i.type==='frame'){S.frame=id;S.twin=false}if(i.type==='entrance')S.entrance=id;if(i.type==='emotes')S.pack=id;
+  render();
+}
+
+/* ----- actions ----- */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-a]');if(!t)return;
+  if(t.getAttribute('data-a')==='closeModal'&&e.target.closest('[data-stop]')&&t.classList.contains('modal'))return;
+  var a=t.getAttribute('data-a'),v=t.getAttribute('data-v');
+  switch(a){
+    case 'status':S.status=v;if(v==='wing')S.party=true;render();break;
+    case 'party':S.party=!S.party;render();break;
+    case 'play':resetSession();go('queue');break;
+    case 'cancel':go('lobby');break;
+    case 'emote':floatEmote('me',v);if(Math.random()<.5)later(function(){floatEmote(pick(others()).id,'Ha')},500);break;
+    case 'lockTake':go('htresults');break;
+    case 'toWho':go('whosaid');break;
+    case 'lockWho':clearTimers();startGuess();break;
+    case 'guess':S.round.guessPick=v;if(v===S.round.guessQ[S.round.guessIdx])S.round.guessScore++;render();break;
+    case 'nextGuess':if(S.round.guessIdx<2){S.round.guessIdx++;S.round.guessPick=null;render()}else{S.round.laughs=S.round.myAnswer.trim()?1+Math.floor(Math.random()*4):0;go('unlock')}break;
+    case 'toTrip':go('roadtrip');break;
+    case 'pickPerson':S.round.selected=v;render();break;
+    case 'slot':
+      var sl=S.round.slots;
+      if(S.round.selected){['road','brunch','rain'].forEach(function(k){if(sl[k]===S.round.selected)sl[k]=null});sl[v]=S.round.selected;S.round.selected=null}
+      else if(sl[v]){sl[v]=null}
+      render();break;
+    case 'lockTrip':go('rtresults');break;
+    case 'toPicks':go('picks');break;
+    case 'pk':
+      if(S.round.picks[v]){S.round.picks[v]=false;S.round.hearts[v]=false}
+      else{var c=Object.keys(S.round.picks).filter(function(k){return S.round.picks[k]}).length;if(c>=3){toast('Pick up to 3. Unpick someone first.',2500);break}S.round.picks[v]=true}
+      render();break;
+    case 'heart':
+      S.round.hearts[v]=!S.round.hearts[v];
+      if(S.round.hearts[v]&&!S.round.picks[v]){var c2=Object.keys(S.round.picks).filter(function(k){return S.round.picks[k]}).length;if(c2>=3){S.round.hearts[v]=false;toast('Pick up to 3. Unpick someone first.',2500)}else S.round.picks[v]=true}
+      render();break;
+    case 'group':S.round.group=!S.round.group;render();break;
+    case 'send':computeResult();go('reveal');break;
+    case 'again':go('lobby');break;
+    case 'locker':S.modal='locker';render();break;
+    case 'closeModal':if(e.target===t||t.tagName==='BUTTON'){S.modal=null;render()}break;
+    case 'shop':buy(v);break;
+    case 'split':
+      if(!S.party){toast('Bring Kenzie into your party first.',2500);break}
+      if(S.coins<150){toast('Not enough coins.',2500);break}
+      S.coins-=150;S.modalSplit='waiting';render();
+      setTimeout(function(){S.modalSplit=null;S.twin=true;render();toast('<b>Kenzie paid her half.</b> Twin Flames unlocked for you both.')},2200);break;
+    case 'gift':if(S.coins<300){toast('Not enough coins.',2500);break}S.coins-=300;S.twin=true;render();toast('Gifted. Kenzie gets a note from you.');break;
+    case 'noop':toast('Chat is not part of this prototype.',2000);break;
+  }
+});
+resetSession();render();
+})();
+</script>
+</body>
+</html>
